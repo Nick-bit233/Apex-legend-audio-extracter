@@ -1,3 +1,0 @@
-2021-03-30 19:57:26,479 - E:\作品\python程序\Apex_audio_extracter\main.py[line:105] - INFO:  F: & cd "F:\Steam\steamapps\common\Apex Legends" & .\msd 0 & .\msd -l > "F:\Steam\steamapps\common\Apex Legends/miles_audio/audio_list.txt" 
-2021-03-30 19:57:29,869 - E:\作品\python程序\Apex_audio_extracter\main.py[line:108] - INFO: 
-2021-03-30 21:00:56,619 - E:\作品\python程序\Apex_audio_extracter\main.py[line:101] - INFO:  F: & cd "F:\Steam\steamapps\common\Apex Legends" & .\msd 0 & .\msd -l > "F:\Steam\steamapps\common\Apex Legends/miles_audio/audio_list.txt" 
