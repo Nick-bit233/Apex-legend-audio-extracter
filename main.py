@@ -1,10 +1,34 @@
 import os
 import re
+import logging
+from logging import handlers
 from threading import Thread
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt, QStringListModel
 from PyQt5.QtWidgets import *
 from form import Ui_Form
+
+
+class Logger(object):
+    level_relations = {
+        'debug': logging.DEBUG,
+        'info': logging.INFO,
+        'warning': logging.WARNING,
+        'error': logging.ERROR,
+    }  # 日志级别关系映射
+
+    def __init__(self, filename, level='info', when='D', backCount=3,
+                 fmt='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s'):
+        self.logger = logging.getLogger(filename)
+        format_str = logging.Formatter(fmt)  # 设置日志格式
+        self.logger.setLevel(self.level_relations.get(level))  # 设置日志级别
+        sh = logging.StreamHandler()  # 往屏幕上输出
+        sh.setFormatter(format_str)  # 设置屏幕上显示的格式
+        th = handlers.TimedRotatingFileHandler(filename=filename, when=when, backupCount=backCount, encoding='utf-8')
+        # 往文件里写入#指定间隔时间自动生成文件的处理器
+        th.setFormatter(format_str)  # 设置文件里写入的格式
+        self.logger.addHandler(sh)  # 把对象加到logger里
+        self.logger.addHandler(th)
 
 
 class mainForm(QWidget):
@@ -18,6 +42,8 @@ class mainForm(QWidget):
 
         # 设置类成员
         self.qList = []
+        # 日志对象
+        self.log = Logger('debug.log', level='debug')
 
         # 设置信号
         self.ui.toolButton_gamePos.clicked.connect(self.open_file_game)
@@ -68,12 +94,13 @@ class mainForm(QWidget):
             if audioPos != "":
                 audioPos = '.' + audioPos
                 cmdMSD = ''' %s & cd "%s" & .\\msd --folder=%s 0 & .\\msd  --folder=%s -l > "%s" ''' \
-                         % (headPos, gamePos,audioPos, audioPos, txtPos)
+                         % (headPos, gamePos, audioPos, audioPos, txtPos)
             else:
                 cmdMSD = ''' %s & cd "%s" & .\\msd 0 & .\\msd -l > "%s" ''' % (headPos, gamePos, txtPos)
             print(cmdMSD)
+            self.log.logger.info(cmdMSD)
             q = os.popen(cmdMSD)
-            print(q.read())
+            q.close()
             cnt = 0
             with open(txtPos, 'r') as flist:
                 for cnt, _ in enumerate(flist):
@@ -87,6 +114,7 @@ class mainForm(QWidget):
 
         except Exception as e:
             print(e)
+            self.log.logger.error(e)
             QMessageBox.critical(self, "错误", "请确认路径参数正确后重试！", QMessageBox.Close)
 
     # 从txt文件中读取音频名称，展示到列表中,并初始化搜索框
@@ -158,7 +186,6 @@ class mainForm(QWidget):
         thread = Thread(target=self.playThreadFunc)
         thread.start()
 
-
     def playThreadFunc(self):
         try:
             gamePos = self.ui.lineEdit_gamePath.text()
@@ -184,6 +211,7 @@ class mainForm(QWidget):
             print(p_res.read())
         except Exception as e:
             print(e)
+            self.log.logger.error(e)
 
     def download_mes(self):
         thread = Thread(target=self.DownThreadFunc)
@@ -218,6 +246,7 @@ class mainForm(QWidget):
                 os.popen("start %s" % filepath)
         except Exception as e:
             print(e)
+            self.log.logger.error(e)
 
     def on_audiopath_changed(self):
         self.ui.pushButton_readtxt.setEnabled(False)
@@ -263,7 +292,8 @@ class mainForm(QWidget):
             if action == "[None]":
                 result = re.search(r"([0-9]+),diag_(ap|mp)_%s_.*%s.*" % (legend, key), each, flags=re.IGNORECASE)
             else:
-                result = re.search(r"([0-9]+),diag_(ap|mp)_%s_%s_.*%s.*" % (legend, action, key), each, flags=re.IGNORECASE)
+                result = re.search(r"([0-9]+),diag_(ap|mp)_%s_%s_.*%s.*" % (legend, action, key), each,
+                                   flags=re.IGNORECASE)
             if result is not None:
                 id = int(result.group(1))
                 if id not in items:
