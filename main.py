@@ -1,6 +1,7 @@
 import os
 import re
 import logging
+import subprocess
 from logging import handlers
 from threading import Thread
 from PyQt5 import QtWidgets
@@ -42,6 +43,7 @@ class mainForm(QWidget):
 
         # 设置类成员
         self.qList = []
+        self.subMSD = None
         # 日志对象
         self.log = Logger('debug.log', level='debug')
 
@@ -93,10 +95,10 @@ class mainForm(QWidget):
             cmdMSD = ""
             if audioPos != "":
                 audioPos = '.' + audioPos
-                cmdMSD = ''' %s & cd "%s" & .\\msd --folder=%s 0 & .\\msd  --folder=%s -l > "%s" ''' \
+                cmdMSD = ''' %s & cd "%s" & .\\msd --folder=%s 0 1 & .\\msd  --folder=%s -l > "%s" ''' \
                          % (headPos, gamePos, audioPos, audioPos, txtPos)
             else:
-                cmdMSD = ''' %s & cd "%s" & .\\msd 0 & .\\msd -l > "%s" ''' % (headPos, gamePos, txtPos)
+                cmdMSD = ''' %s & cd "%s" & .\\msd 0 1 & .\\msd -l > "%s" ''' % (headPos, gamePos, txtPos)
             print(cmdMSD)
             self.log.logger.info(cmdMSD)
             q = os.popen(cmdMSD)
@@ -185,6 +187,7 @@ class mainForm(QWidget):
     def play_one_aduio(self):
         thread = Thread(target=self.playThreadFunc)
         thread.start()
+        QMessageBox.information(self, "请稍等", "正在播放抓取的音频")
 
     def playThreadFunc(self):
         try:
@@ -276,7 +279,7 @@ class mainForm(QWidget):
             result = re.search(r"[0-9]+,diag_(ap|mp)_%s_([a-zA-Z]+)_" % legend, each)
             if result is not None:
                 l = result.group(2)
-                print(each, l)
+                # print(each, l)
                 if l not in actionList:
                     actionList.append(l)
         actionList.append("[None]")
