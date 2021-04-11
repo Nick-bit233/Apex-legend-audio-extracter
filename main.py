@@ -50,7 +50,7 @@ class mainForm(QWidget):
         # 设置信号
         self.ui.toolButton_gamePos.clicked.connect(self.open_file_game)
         self.ui.toolButton_savePos.clicked.connect(self.open_file_txtsave)
-        self.ui.pushButton_scan.clicked.connect(self.on_scan)
+        self.ui.pushButton_scan.clicked.connect(self.scanThreadFunc)
         self.ui.pushButton_opentxt.clicked.connect(self.open_txtlist)
         self.ui.pushButton_readtxt.clicked.connect(self.read_txtlist)
         self.ui.pushButton_index.clicked.connect(self.index_search)
@@ -75,6 +75,11 @@ class mainForm(QWidget):
             else:
                 txtPos = txtPos + "/audio_list.txt"
         return txtPos
+
+    def scanThreadFunc(self):
+        thread = Thread(target=self.on_scan)
+        thread.start()
+        self.ui.pushButton_scan.setEnabled(False)
 
     # 点击扫描按钮，调用MSD获得音频列表，写入txt文件
     def on_scan(self):
@@ -122,6 +127,8 @@ class mainForm(QWidget):
     # 从txt文件中读取音频名称，展示到列表中,并初始化搜索框
     def read_txtlist(self):
         txtPos = self.get_txtPos()
+
+        self.qList.clear()
 
         # 获得所有音频名称的列表
         with open(txtPos, 'r') as flist:
@@ -252,6 +259,7 @@ class mainForm(QWidget):
             self.log.logger.error(e)
 
     def on_audiopath_changed(self):
+        self.ui.pushButton_scan.setEnabled(True)
         self.ui.pushButton_readtxt.setEnabled(False)
         self.ui.pushButton_index.setEnabled(False)
         self.ui.pushButton_diag.setEnabled(False)
