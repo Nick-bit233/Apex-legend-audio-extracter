@@ -1,7 +1,7 @@
 
 # 已修复MSD问题，现已可正常使用
 感谢@Lyxica 
-#APEX音频提取器0.2.4
+# APEX音频提取器0.2.4
 
 基于MSD命令行提取器写的（简陋）GUI程序，用来提取APEX里的语音和音效
 MSD的github地址：https://github.com/Lyxica/Miles-10-Sound-Dumper
