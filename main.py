@@ -270,7 +270,8 @@ class mainForm(QWidget):
         legendList = []
         for each in self.qList:
             # print(each)
-            result = re.search(r"[0-9]+,diag_(ap|mp)_([a-zA-Z]{4,})_", each)
+            # 匹配传奇名最小字符长度为3，别问我之前为啥是4，问就是出了ash这个怪物：（
+            result = re.search(r"[0-9]+,diag_(ap|mp)_([a-zA-Z]{3,})_", each)
             if result is not None:
                 l = result.group(2)
                 # print(each, l)
